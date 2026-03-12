@@ -9,6 +9,9 @@ Anotador de Truco Argentino hecho en **SwiftUI**, con interfaz simple, agradable
   - El juego va a 30 puntos.
   - Primeros 15 puntos: malas.
   - De 16 a 30: buenas.
+- Cálculo de jugadas **al resto** (Falta Envido / Contraflor al resto) según el puntaje del rival:
+  - Si el rival está en malas, se juega al cierre de malas (15).
+  - Si el rival está en buenas, se juega al cierre de partida (30).
 - Carga rápida de tantos por:
   - Mano ganada (1, 2 o 3 puntos).
   - Truco / Retruco / Vale Cuatro (querido y no querido).

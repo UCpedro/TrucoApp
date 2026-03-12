@@ -1,10 +1,15 @@
 import Foundation
+import Combine
 
 enum Team: String, CaseIterable, Identifiable {
     case nosotros = "Nosotros"
     case ellos = "Ellos"
 
     var id: String { rawValue }
+
+    var opponent: Team {
+        self == .nosotros ? .ellos : .nosotros
+    }
 }
 
 enum MatchPhase: String {
@@ -40,7 +45,7 @@ enum TrucoAction: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    func points(currentScore: Int, maxScore: Int) -> Int {
+    func points(currentScore: Int, opponentScore: Int, maxScore: Int, malasLimit: Int) -> Int {
         switch self {
         case .mano1: return 1
         case .mano2: return 2
@@ -55,13 +60,16 @@ enum TrucoAction: String, CaseIterable, Identifiable {
 
         case .envidoQuerido: return 2
         case .realEnvidoQuerido: return 3
-        case .faltaEnvidoQuerido: return max(1, maxScore - currentScore)
+        case .faltaEnvidoQuerido,
+                .contraflorAlResto:
+            let target = opponentScore < malasLimit ? malasLimit : maxScore
+            return max(1, target - currentScore)
+
         case .envidoNoQuerido: return 1
         case .realEnvidoNoQuerido: return 1
 
         case .flor: return 3
         case .contraflor: return 6
-        case .contraflorAlResto: return max(1, maxScore - currentScore)
         }
     }
 }
@@ -114,7 +122,13 @@ final class TrucoMatch: ObservableObject {
         guard winner == nil else { return }
 
         let current = score(for: team)
-        let points = action.points(currentScore: current, maxScore: maxScore)
+        let opponent = score(for: team.opponent)
+        let points = action.points(
+            currentScore: current,
+            opponentScore: opponent,
+            maxScore: maxScore,
+            malasLimit: malasLimit
+        )
         let newScore = min(maxScore, current + points)
 
         if team == .nosotros {
